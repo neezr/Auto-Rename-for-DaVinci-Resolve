@@ -1,6 +1,7 @@
 # ~ Auto-Rename MediaIn to file name ~
 Never get confused by generically named Media In-nodes again.
 
+![AutoRenameMediaIn](https://github.com/neezr/Auto-Rename-Media-In-Nodes-for-DaVinci-Resolve/assets/145998491/826da4df-bc32-4aa2-af45-4e46bb1c6257)
 
 
 ## Usage:
