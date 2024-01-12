@@ -1,11 +1,14 @@
-# ~ Auto-Rename ~
+# Auto-Rename
 Never get confused by generically named Fusion nodes in DaVinci Resolve again.
+
+![AutoRename](https://github.com/neezr/Auto-Rename-Media-In-Nodes-for-DaVinci-Resolve/assets/145998491/8227b072-4e11-467e-97eb-a7eb3dfac627)
+
 
 Automatically rename:
 
-- 'MediaIn' nodes to their file names,
-- 'Background' nodes to their colors and
-- 'Text+'/'Text3D' nodes to their text contents
+- *'MediaIn'* nodes to their file names,
+- *'Background'* nodes to their colors and
+- *'Text+'*/*'Text3D'* nodes to their text contents
 
 All with a single click!
 
