@@ -26,7 +26,7 @@ function rename_mediain_node(tool)
 		new_node_name = tool:GetAttrs().TOOLS_Clip_Name
 		
 		if string.find(new_node_name, ".") then --remove file extensions
-			final_dot_index = (new_node_name:reverse()):find("%.")
+			local final_dot_index = (new_node_name:reverse()):find("%.")
 			new_node_name = string.sub(new_node_name,1,#new_node_name-final_dot_index)
 		end
 		
@@ -259,24 +259,23 @@ function main()
 		local _tool_displayname = tool:GetAttrs().TOOLS_Name
 		
 		if((_tool_id == "MediaIn") and string.find(_tool_displayname, "MediaIn")) then
-			rename_mediain_node(tool)
+			pcall(rename_mediain_node, tool)
 		
 		elseif(_tool_id == "Background") then
 			if(string.find(_tool_displayname, "Background") or string.find(_tool_displayname, "Transparent")) then
-				rename_background_node(tool)
-				break
-			end
-			for color,_ in pairs(COLORS) do
-				if(_tool_displayname == BG_NODE_PREFIX .. color .. BG_NODE_SUFFIX) then
-					rename_background_node(tool)
-					break
+				pcall(rename_background_node, tool)
+			else
+				for color,_ in pairs(COLORS) do
+					if(_tool_displayname == BG_NODE_PREFIX .. color .. BG_NODE_SUFFIX) then
+						pcall(rename_background_node, tool)
+						break
+					end
 				end
 			end
 		
 		elseif((_tool_id == "TextPlus") or (_tool_id == "Text3D")) then
 			if(string.find(_tool_displayname, NODE_PREFIX_TEXTPLUS) or string.find(_tool_displayname, NODE_PREFIX_TEXT3D) or string.find(_tool_displayname, "Text")) then
-				print(_tool_displayname)
-				rename_textplus_node(tool)
+				pcall(rename_textplus_node, tool)
 			end
 		end
 	end
