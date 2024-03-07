@@ -1,6 +1,6 @@
 --[[
 Auto Rename
-created by Nizar / version 1.0
+created by Nizar / version 1.1
 contact: http://twitter.com/nizarneezR
 
 Usage:
@@ -8,6 +8,7 @@ Usage:
 - Open the Fusion page 
 - Run this script from DaVinci Resolve's dropdown menu (Workspace > Scripts)
 - This will automatically rename all unnamed "MediaIn", "Background", "Text+" and "Text 3D" nodes to logical display names
+- This will also rename all layers in the LayerList of a "MultiMerge" node to the names of their input nodes
 
 - This works best if bound to a hotkey! (open hotkey settings with CTRL+ALT+K)
 
@@ -22,10 +23,12 @@ Install:
 -- [Media In-Nodes]
 
 function rename_mediain_node(tool)
-	if string.find(tool:GetAttrs().TOOLS_Name, "MediaIn") then
+	if tool:GetAttrs("TOOLS_RegID") == "MediaIn" then
 		new_node_name = tool:GetAttrs().TOOLS_Clip_Name
 		
-		if string.find(new_node_name, ".") then --remove file extensions
+		new_node_name = string.gsub(new_node_name, " ", "_") --remove white spaces
+		
+		if string.find(new_node_name, "%.") then --remove file extensions
 			local final_dot_index = (new_node_name:reverse()):find("%.")
 			new_node_name = string.sub(new_node_name,1,#new_node_name-final_dot_index)
 		end
@@ -249,6 +252,33 @@ function shorten_text_node_name(styledtext)
 	end
 end
 
+-- [MultiMerge nodes]
+
+function number_of_connected_layers(mmrg)
+	local res = 0
+	while(mmrg["Layer"..tostring(res+1)] ~= nil) do
+		res = res+1
+	end
+	--[[for some reason, an invisible n+1th layer is always added to a MultiMerge. Calling the GetTool() method on it will throw an error.
+	res-1 ignores that additional, falsely added layer
+	]]--
+	return res-1
+end
+
+function rename_multimerge_node(tool)
+	if(tool:GetAttrs("TOOLS_RegID") == "MultiMerge") then
+		--[[
+		print(tool.LayerName1[0]) -- = Name of layer n in layer list ("Layer 1") at frame 0
+		print(tool["Layer1"].Foreground:GetConnectedOutput():GetTool()) -- = get connected tool
+		print(number_of_connected_layers(tool)) -- number of connected foreground layers in Layer List
+		]]--
+		for i=1,number_of_connected_layers(tool) do
+			tool["LayerName"..tostring(i)][0] = tool["Layer"..tostring(i)].Foreground:GetConnectedOutput():GetTool():GetAttrs("TOOLS_Name")
+		end
+		
+	end
+end
+
 -- [main loop]
 
 function main()
@@ -256,27 +286,22 @@ function main()
 	
 	for _,tool in ipairs(tools) do
 		local _tool_id = tool:GetAttrs("TOOLS_RegID")
-		local _tool_displayname = tool:GetAttrs().TOOLS_Name
+		local _tool_name_changed_by_user = tool:GetAttrs("TOOLB_NameSet")
 		
-		if((_tool_id == "MediaIn") and string.find(_tool_displayname, "MediaIn")) then
+		if((_tool_id == "MediaIn") and (not _tool_name_changed_by_user)) then
 			pcall(rename_mediain_node, tool)
 		
-		elseif(_tool_id == "Background") then
-			if(string.find(_tool_displayname, "Background") or string.find(_tool_displayname, "Transparent")) then
+		elseif(_tool_id == "Background" and (not _tool_name_changed_by_user)) then
 				pcall(rename_background_node, tool)
-			else
-				for color,_ in pairs(COLORS) do
-					if(_tool_displayname == BG_NODE_PREFIX .. color .. BG_NODE_SUFFIX) then
-						pcall(rename_background_node, tool)
-						break
-					end
-				end
-			end
 		
 		elseif((_tool_id == "TextPlus") or (_tool_id == "Text3D")) then
-			if(string.find(_tool_displayname, NODE_PREFIX_TEXTPLUS) or string.find(_tool_displayname, NODE_PREFIX_TEXT3D) or string.find(_tool_displayname, "Text")) then
+			if(not _tool_name_changed_by_user) then
 				pcall(rename_textplus_node, tool)
 			end
+		
+		
+		elseif(_tool_id == "MultiMerge") then
+			pcall(rename_multimerge_node, tool)
 		end
 	end
 end
