@@ -24,3 +24,10 @@ All with a single click!
 
 ## Install:
 - Copy the .lua-file into the folder "%appdata%\Blackmagic Design\DaVinci Resolve\Support\Fusion\Scripts\Comp"
+
+
+### Acknowledgements:
+
+The function for conversion from RGB to CIELAB color space is taken from WetDesertRock's *vivid* project and adapted slightly to fit this project:
+
+▶ https://github.com/WetDesertRock/vivid
